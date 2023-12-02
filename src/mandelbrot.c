@@ -1,3 +1,19 @@
+/*
+
+Authours: Alexander Pham, Kushal Saini and Nimrat Brar
+
+Course: COMP 3659 - 001
+
+Programming Project 2
+
+File name: mandelbrot.c
+
+Instructor: Marc Schroeder
+
+Purpose: source for for mandelbrot functions 
+
+*/
+
 #include "mandelbrot.h"
 
 void coordinates(Image* img, int iterations, int xPixel, int yPixel, int imageSize) {
