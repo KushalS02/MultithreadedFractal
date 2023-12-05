@@ -15,7 +15,7 @@ struct coordinateRange* divideCoordinates(int threadCount, int resolution) {
     //Let us allocate memory so other threads can access this.
     struct coordinateRange* ranges = (struct coordinateRange*)malloc(threadCount * sizeof(struct coordinateRange));
 
-    if(ranges = NULL)
+    if(ranges == NULL)
     {
         return NULL;
         printf("Could not create Memory for Ranges");
