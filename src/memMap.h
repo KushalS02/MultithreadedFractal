@@ -22,8 +22,11 @@ pointer to the mapped memory or NULL in case of errors.
 
 #define _GNU_SOURCE
 #include <stdio.h>
+#include <stdlib.h>
 #include <fcntl.h>
 #include <sys/mman.h>
+#include <unistd.h>
+#include <sys/stat.h>
 
 /*
 

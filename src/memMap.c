@@ -21,18 +21,26 @@ pointer to the mapped memory or NULL in case of errors.
 
 
 char* createFileMap(char* filename, int filesize) {
-    
-    int fd = open(filename, O_WRONLY | O_CREAT | O_EXCL, (mode_t)S_IRWXU); //creates file
+    int fd = open(filename, O_RDWR | O_CREAT | O_TRUNC, (mode_t)0600); // Modify flags and permissions accordingly
     if (fd == -1) {
-        perror("Error creating file: ");
+        perror("Error opening file");
         return NULL;
     }
 
-    if (fallocate(fd, 0, 0, filesize) == -1) { //allocates disk space to file
-        perror("Error allocating space: ");
+    if (ftruncate(fd, filesize) == -1) { // Truncate file to desired size
+        perror("Error truncating file");
+        close(fd);
         return NULL;
     }
 
-    char *fileMap = mmap(NULL, filesize, PROT_WRITE, MAP_SHARED, fd, 0); //maps file to memory
+    char *fileMap = mmap(NULL, filesize, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+    if (fileMap == MAP_FAILED) {
+        perror("Error mapping file to memory");
+        close(fd);
+        return NULL;
+    }
+
+    close(fd); // Closing file descriptor since it's mapped into memory
+
     return fileMap;
 }

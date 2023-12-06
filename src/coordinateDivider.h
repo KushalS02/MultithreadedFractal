@@ -1,5 +1,8 @@
-#include <stdio.h>
+#ifndef COORDINATE_DIVIDER_H
+#define COORDINATE_DIVIDER_H
+
 #include <stdlib.h>
+
 typedef struct coordinateRange {
     int xStart;
     int yStart;
@@ -9,3 +12,5 @@ typedef struct coordinateRange {
 
 struct coordinateRange* divideCoordinates(int threadCount, int resolution);
 void testDivideCoordinates(int threadCount, int resolution);
+
+#endif

@@ -14,40 +14,131 @@ int main(int argc, char *argv[])
     unsigned int threadCount = atoi(argv[3]);
     char *filename = argv[4];
 
-    char invalidArgValue = FALSE;    
-    if (imgRes > MAX_RESOLUTION || imgRes < 1) {
+    char invalidArgValue = FALSE;
+    if (imgRes > MAX_RESOLUTION || imgRes < 1)
+    {
         printf("Invalid resolution\n");
         invalidArgValue = TRUE;
-    } else if (threadCount > imgRes || threadCount < 1) {
+    }
+    else if (threadCount > imgRes || threadCount < 1)
+    {
         printf("Invalid thread count\n");
         invalidArgValue = TRUE;
     }
-    if (iterations > MAX_ITERATIONS || iterations < 1){
+    if (iterations > MAX_ITERATIONS || iterations < 1)
+    {
         printf("Invalid iterations\n");
         invalidArgValue = TRUE;
     }
-    if (invalidArgValue) {
+    if (invalidArgValue)
+    {
         return 0;
     }
 
     unsigned int imgSize = (imgRes << 1) * BYTES_PER_PIXEL; // size of image data
-    unsigned int filesize = imgSize + IMAGE_DATA_OFFSET; // size of image data + header
+    unsigned int filesize = calculateFilesize(imgRes);    // size of image data + header
 
     char *bmpFile = createFileMap(filename, filesize);
     writeHeader(bmpFile, imgRes, filesize, imgSize);
     coordinateRange *ranges = divideCoordinates(threadCount, imgRes);
 
-    for(int i = 0; i < threadCount; i++) {
-        
+    pthread_t threads[threadCount];
+
+    for (int i = 0; i < threadCount; i++) {
+        struct renderRangeParams *params = malloc(sizeof(struct renderRangeParams));
+        if (params == NULL) {
+            // Handle memory allocation failure
+            exit(EXIT_FAILURE);
+        }
+
+        params->iterations = iterations;
+        params->imgRes = imgRes;
+        params->bmpFile = bmpFile;
+        params->range = &ranges[i];
+
+        if (pthread_create(&threads[i], NULL, renderRange, params) != 0) {
+            // Handle thread creation failure
+            free(params);
+            exit(EXIT_FAILURE);
+        }
     }
-    free(ranges);
+
+    // Wait for all threads to complete before exiting
+    for (int i = 0; i < threadCount; i++) {
+        printf("before thread join\n");
+        if (pthread_join(threads[i], NULL) != 0) {
+            printf("thread join failure\n");
+            // Handle thread joining failure
+            exit(EXIT_FAILURE);
+        }
+        printf("After thread join\n");
+    }
+    printf("after for loop\n");
+
     return 0;
 }
 
-void renderRange(coordinateRange* range) {
-    int x = range->xStart;
-    int y = range->yStart;
-    while(!(x == range->xEnd && y == range->yEnd)) {
-        
+    void *renderRange(void *args)
+    {
+        renderRangeParams *params = (renderRangeParams *)args;
+        coordinateRange *range = params->range;
+        int iterations = params->iterations;
+        int imgRes = params->imgRes;
+        char *imgData = params->bmpFile;
+
+        int x = range->xStart;
+        int y = range->yStart;
+        char done = FALSE;
+        int iterationsRemaining; // number of iterations not used
+        float percentRemaining;  // percent of iterations not used
+        printf("xstart: %d, ystart: %d, xend: %d, yend: %d\n", x, y, range->xEnd, range->yEnd);
+        while (!done)
+        {
+            while (!done && x < imgRes)
+            {
+                iterationsRemaining = mandelbrot(x, y, iterations, imgRes);
+                percentRemaining = iterationsRemaining / (float)iterations;
+                printf("x: %d, y: %d\n", x, y);
+                drawPixel(x, y, imgRes, percentRemaining, imgData);
+                printf("after drawPixel\n");
+
+                if (x == range->xEnd && y == range->yEnd)
+                {
+                    done = TRUE;
+                }
+                x++;
+            }
+            y++;
+            x = 0;
+        }
+        printf("done rander range\n");
+        return 0;
     }
-}
+
+    void drawPixel(int x, int y, unsigned int imgRes, float percentNotUsed, char *imgData)
+    {
+        RGBColour colour;
+        if (percentNotUsed == 0)
+        {
+            colour = BLACK;
+        }
+        else if (percentNotUsed < 0.85)
+        {
+            colour = SUNSET_RED;
+        }
+        else if (percentNotUsed < 0.92)
+        {
+            colour = RED_ORANGE;
+        }
+        else if (percentNotUsed < 0.97)
+        {
+            colour = LIGHT_ORANGE;
+        }
+        else if (percentNotUsed < 1)
+        {
+            colour = CYAN_TEAL;
+        }
+
+        writePixel(x, y, imgRes, &colour, imgData);
+        return;
+    }

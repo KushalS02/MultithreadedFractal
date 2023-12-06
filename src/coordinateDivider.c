@@ -13,12 +13,10 @@ struct coordinateRange* divideCoordinates(int threadCount, int resolution) {
     */
 
     //Let us allocate memory so other threads can access this.
-    printf("Before\n");
     struct coordinateRange* ranges = (struct coordinateRange*)malloc(threadCount * sizeof(struct coordinateRange));
     if(ranges == NULL)
     {
         return NULL;
-        printf("Could not create Memory for Ranges");
     }
 
     //calculate the number of rows and columns for each thread
@@ -43,6 +41,7 @@ struct coordinateRange* divideCoordinates(int threadCount, int resolution) {
     
 }
 
+/*
 void testDivideCoordinates(int threadCount, int resolution){
 
     // call function
@@ -67,9 +66,10 @@ void testDivideCoordinates(int threadCount, int resolution){
     return;
 }
 
-/*int main(int argc, char* argv[]) {
+int main(int argc, char* argv[]) {
     int threads = atoi(argv[1]);
     int res = atoi(argv[2]);
     testDivideCoordinates(threads, res);
     return 0;
-}*/
+}
+*/

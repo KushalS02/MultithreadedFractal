@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "mandelbrot.h": "c",
+        "bitmaplib.h": "c"
+    }
+}

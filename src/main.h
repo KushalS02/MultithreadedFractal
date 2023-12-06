@@ -1,7 +1,10 @@
+#ifndef MAIN_H
+#define MAIN_H
+
 #include <stdio.h>
 #include <stdlib.h>
+#include <pthread.h>
 #include "memMap.h"
-#include "libbmp.h"
 #include "bitmapLib.h"
 #include "coordinateDivider.h"
 #include "mandelbrot.h"
@@ -13,3 +16,15 @@
 
 #define TRUE 1
 #define FALSE 0
+
+typedef struct renderRangeParams {
+    coordinateRange* range;
+    unsigned int iterations;
+    unsigned int imgRes;
+    char* bmpFile;
+} renderRangeParams;
+
+void* renderRange(void* args);
+void drawPixel(int x, int y, unsigned int imgRes, float percentNotUsed, char *imgData);
+
+#endif

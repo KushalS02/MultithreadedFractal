@@ -2,14 +2,23 @@ default: mandelbrotGen
 
 all: clean mandelbrotGen
 
-mandelbrotGen: mandelbrot.o
-  gcc mandelbrot.o -o mandelbrotGen
+mandelbrotGen: main.o bitmapLib.o coordinateDivider.o mandelbrot.o memMap.o
+	gcc main.o bitmapLib.o coordinateDivider.o mandelbrot.o memMap.o -o mandelbrotGen
+
+main.o: main.c main.h
+	gcc -c main.c
+
+bitmapLib.o: bitmapLib.c bitmapLib.h
+	gcc -c bitmapLib.c
+
+coordinateDivider.o: coordinateDivider.c coordinateDivider.h
+	gcc -c coordinateDivider.c
 
 mandelbrot.o: mandelbrot.c mandelbrot.h
-  gcc -c mandelbrot.c
+	gcc -c mandelbrot.c
 
 memMap.o: memMap.c memMap.h
-  gcc -c memMap.c
+	gcc -c memMap.c
 
 clean:
-  rm *.o mandelbrotGen
+	rm -f *.o mandelbrotGen
