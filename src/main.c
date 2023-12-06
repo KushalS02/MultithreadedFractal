@@ -65,16 +65,13 @@ int main(int argc, char *argv[])
 
     // Wait for all threads to complete before exiting
     for (int i = 0; i < threadCount; i++) {
-        printf("before thread join\n");
         if (pthread_join(threads[i], NULL) != 0) {
-            printf("thread join failure\n");
             // Handle thread joining failure
             exit(EXIT_FAILURE);
         }
-        printf("After thread join\n");
     }
-    printf("after for loop\n");
 
+    printf("DONE\n");
     return 0;
 }
 
@@ -91,16 +88,13 @@ int main(int argc, char *argv[])
         char done = FALSE;
         int iterationsRemaining; // number of iterations not used
         float percentRemaining;  // percent of iterations not used
-        printf("xstart: %d, ystart: %d, xend: %d, yend: %d\n", x, y, range->xEnd, range->yEnd);
         while (!done)
         {
             while (!done && x < imgRes)
             {
                 iterationsRemaining = mandelbrot(x, y, iterations, imgRes);
                 percentRemaining = iterationsRemaining / (float)iterations;
-                printf("x: %d, y: %d\n", x, y);
                 drawPixel(x, y, imgRes, percentRemaining, imgData);
-                printf("after drawPixel\n");
 
                 if (x == range->xEnd && y == range->yEnd)
                 {
@@ -111,7 +105,6 @@ int main(int argc, char *argv[])
             y++;
             x = 0;
         }
-        printf("done rander range\n");
         return 0;
     }
 
