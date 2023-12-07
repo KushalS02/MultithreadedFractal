@@ -1,3 +1,27 @@
+/*
+Authors: Alexander Pham, Kushal Saini, Nimrat Brar
+Course: COMP 3659
+Assignment: Programming Project 2
+Professor: Marc Schroeder
+Filename: main.c
+
+Program Status: Fully functional
+
+Purpose: Output a BMP image of a mandelbrot fractal
+
+Inputs (command line args):
+
+    - arg 1: Resolution of image
+        - image generated is a square, so only 1 dimension needed
+
+    - arg 2: Max number of iterations to be performed in the mandelbrot algorithm
+        - higher = more detail, longer render time
+        - lower = less detail, shorter render time
+
+    - arg 3: Number of threads that should be created
+        - must be less than resolution
+*/
+
 #include "main.h"
 
 int main(int argc, char *argv[])
@@ -40,33 +64,38 @@ int main(int argc, char *argv[])
 
     char *bmpFile = createFileMap(filename, filesize);
     writeHeader(bmpFile, imgRes, filesize, imgSize);
-    coordinateRange *ranges = divideCoordinates(threadCount, imgRes);
+    coordinateRange *ranges = divideCoordinates(threadCount, imgRes); // divide image into sections for threads
 
     pthread_t threads[threadCount];
 
+    // creates a thread for each section
     for (int i = 0; i < threadCount; i++) {
+
+        // holds the parameters for the renderRange function
         struct renderRangeParams *params = malloc(sizeof(struct renderRangeParams));
         if (params == NULL) {
-            // Handle memory allocation failure
+            printf("memory allocation failure\n");
             exit(EXIT_FAILURE);
         }
 
+        // initialize parameters for renderRange function
         params->iterations = iterations;
         params->imgRes = imgRes;
         params->bmpFile = bmpFile;
         params->range = &ranges[i];
 
+        // thread executes renderRange
         if (pthread_create(&threads[i], NULL, renderRange, params) != 0) {
-            // Handle thread creation failure
+            printf("thread creation failure\n");
             free(params);
             exit(EXIT_FAILURE);
         }
     }
 
-    // Wait for all threads to complete before exiting
+    // Wait for all threads to complete
     for (int i = 0; i < threadCount; i++) {
         if (pthread_join(threads[i], NULL) != 0) {
-            // Handle thread joining failure
+            printf("thread exited before join\n");
             exit(EXIT_FAILURE);
         }
     }
@@ -77,25 +106,34 @@ int main(int argc, char *argv[])
 
     void *renderRange(void *args)
     {
+        // Initialize parameters from pass-by-refrence structure
         renderRangeParams *params = (renderRangeParams *)args;
         coordinateRange *range = params->range;
-        int iterations = params->iterations;
-        int imgRes = params->imgRes;
+        unsigned int iterations = params->iterations;
+        unsigned int imgRes = params->imgRes;
         char *imgData = params->bmpFile;
 
-        int x = range->xStart;
-        int y = range->yStart;
-        char done = FALSE;
-        int iterationsRemaining; // number of iterations not used
+        // starting coordinates of section
+        unsigned int x = range->xStart;
+        unsigned int y = range->yStart;
+
+        char done = FALSE; // flags end of section
+        unsigned int iterationsRemaining; // number of iterations not used
         float percentRemaining;  // percent of iterations not used
+
+        // loop iterates y coordinate
         while (!done)
         {
+            // loop iterates x coordinate
             while (!done && x < imgRes)
             {
+                // calculate mandelbrot fractal for current x,y coordinates
                 iterationsRemaining = mandelbrot(x, y, iterations, imgRes);
                 percentRemaining = iterationsRemaining / (float)iterations;
+                // draw pixel for current x,y coordinates
                 drawPixel(x, y, imgRes, percentRemaining, imgData);
 
+                // check if end of section reached
                 if (x == range->xEnd && y == range->yEnd)
                 {
                     done = TRUE;
@@ -108,7 +146,7 @@ int main(int argc, char *argv[])
         return 0;
     }
 
-    void drawPixel(int x, int y, unsigned int imgRes, float percentNotUsed, char *imgData)
+    void drawPixel(unsigned int x, unsigned int y, unsigned int imgRes, float percentNotUsed, char *imgData)
     {
         RGBColour colour;
         if (percentNotUsed == 0)
@@ -132,6 +170,6 @@ int main(int argc, char *argv[])
             colour = CYAN_TEAL;
         }
 
-        writePixel(x, y, imgRes, &colour, imgData);
+        writePixel(x, y, imgRes, &colour, imgData); // write pixel data to memory
         return;
     }

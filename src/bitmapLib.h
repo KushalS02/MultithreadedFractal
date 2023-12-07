@@ -1,3 +1,15 @@
+/*
+Authors: Alexander Pham, Kushal Saini, Nimrat Brar
+Course: COMP 3659
+Assignment: Programming Project 2
+Professor: Marc Schroeder
+Filename: bitmapLib.c
+
+File Status: Fully functional
+
+Purpose: Contains functions for creating a bmp file
+*/
+
 #ifndef BITMAPLIB_H
 #define BITMAPLIB_H
 
@@ -27,17 +39,43 @@
 #define G_OFFSET(x, y, imgRes) ((y * imgRes + x)*BYTES_PER_PIXEL + IMAGE_DATA_OFFSET + 1)
 #define B_OFFSET(x, y, imgRes) ((y * imgRes + x)*BYTES_PER_PIXEL + IMAGE_DATA_OFFSET + 2)
 
-
+// Holds the rgb values of a pixel
 typedef struct RGBColour {
     unsigned char r;
     unsigned char g;
     unsigned char b;
 } RGBColour;
 
+/*
+Function: calculateFileSize
+Purpose: calculates the size of the bmp file from the resolution
+Input:
+    - imgRes: dimension of image
+Return:
+    - unsinged int: size of file in bytes
+*/
 unsigned int calculateFilesize(unsigned int imgRes);
 
+/*
+Function: writeHeader
+Purpose: writes the header of the bitmap
+Input:
+    - header: pointer to the bmp file
+    - res: dimensionss of image
+    - filesize: total size of bmp file in bytes
+    - imgSize: size of the image data in bytes
+*/
 void writeHeader(char* header, unsigned int res, unsigned int filesize, unsigned int imgSize);
 
-void writePixel(unsigned int x, unsigned int y, unsigned int imgRes, RGBColour*, char* bmpFile);
+/*
+Function: writePixel
+Purpose: writes a single pixel to the file (adding padding where needed)
+Input:
+    - x: x coordinate
+    - y: y coordinate
+    - imgRes: dimensions of image
+    - colour: struct containing rgb values for the pixel
+*/
+void writePixel(unsigned int x, unsigned int y, unsigned int imgRes, RGBColour* colour, char* bmpFile);
 
 #endif

@@ -1,11 +1,23 @@
+/*
+Authors: Alexander Pham, Kushal Saini, Nimrat Brar
+Course: COMP 3659
+Assignment: Programming Project 2
+Professor: Marc Schroeder
+Filename: bitmapLib.c
+
+File Status: Fully functional
+
+Purpose: Contains functions for creating a bmp file
+*/
+
 #include "bitmapLib.h"
 
 unsigned int calculateFilesize(unsigned int imgRes) {
-    unsigned int rowDataSize = imgRes * BYTES_PER_PIXEL;
-    unsigned int rowPaddingSize = (4 - (rowDataSize % 4)) % 4;
-    unsigned int pixelDataSize = (rowPaddingSize + rowDataSize) * imgRes;
+    unsigned int rowDataSize = imgRes * BYTES_PER_PIXEL; // bytes of pixel data per row
+    unsigned int rowPaddingSize = (4 - (rowDataSize % 4)) % 4; // bytes of padding per row
+    unsigned int pixelDataSize = (rowPaddingSize + rowDataSize) * imgRes; // total bytes of all rows
 
-    return pixelDataSize + IMAGE_DATA_OFFSET;
+    return pixelDataSize + IMAGE_DATA_OFFSET; // filesize = image data + header
 }
 
 void writeHeader(char *header, unsigned int res, unsigned int filesize, unsigned int imgSize)
@@ -34,17 +46,17 @@ void writeHeader(char *header, unsigned int res, unsigned int filesize, unsigned
 
 void writePixel(unsigned int x, unsigned int y, unsigned int imgRes, RGBColour *colour, char *bmpFile)
 {
-    int rowDataSize = imgRes * BYTES_PER_PIXEL;
-    int rowPaddingSize = (4 - (rowDataSize % 4)) % 4;
-    int rowSize = rowPaddingSize + rowDataSize;
+    int rowDataSize = imgRes * BYTES_PER_PIXEL; // bytes of pixel data per row
+    int rowPaddingSize = (4 - (rowDataSize % 4)) % 4; // bytes of padding per row
+    int rowSize = rowPaddingSize + rowDataSize; // total bytes per row
 
-    int pixelOffset = (y * rowSize + x * BYTES_PER_PIXEL) + IMAGE_DATA_OFFSET;
+    int pixelOffset = (y * rowSize + x * BYTES_PER_PIXEL) + IMAGE_DATA_OFFSET; //address of pixel
 
-    bmpFile[pixelOffset + 0] = colour->b; // Blue component
-    bmpFile[pixelOffset + 1] = colour->g; // Green component
-    bmpFile[pixelOffset + 2] = colour->r; // Red component
+    bmpFile[pixelOffset + 0] = colour->b; // Blue
+    bmpFile[pixelOffset + 1] = colour->g; // Green
+    bmpFile[pixelOffset + 2] = colour->r; // Red
 
-    // Calculate padding needed for this row
+    // write padding to file
     int bytesWrittenThisRow = (x + 1) * BYTES_PER_PIXEL;
     if (bytesWrittenThisRow == rowDataSize)
     {

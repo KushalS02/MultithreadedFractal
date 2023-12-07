@@ -1,3 +1,15 @@
+/*
+Authors: Alexander Pham, Kushal Saini, Nimrat Brar
+Course: COMP 3659
+Assignment: Programming Project 2
+Professor: Marc Schroeder
+Filename: coordinateDivider.c
+
+File Status: Fully functional
+
+Purpose: Contains functions for dividing an image into sections
+*/
+
 #include "coordinateDivider.h"
 
 struct coordinateRange* divideCoordinates(int threadCount, int resolution) {
